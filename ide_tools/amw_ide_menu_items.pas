@@ -27,8 +27,10 @@ procedure Register;
 
 implementation
 
-uses LazIDEIntf, LazFileUtils, CompOptsIntf, IDEMsgIntf, IDEExternToolIntf,
-  ProjectIntf, MacroIntf, Controls, ApkBuild, IniFiles, LCLType, PackageIntf{, IDEImagesIntf};
+uses
+  LazIDEIntf, LazFileUtils, CompOptsIntf, IDEMsgIntf, IDEExternToolIntf,
+  ProjectIntf, MacroIntf, Controls, IniFiles, LCLType, PackageIntf, {IDEImagesIntf,}
+  LamwSettings,ApkBuild;
 
 procedure StartFPCTrunkSource(Sender: TObject);
 begin
@@ -72,8 +74,13 @@ begin
         else
           libChip:= 'x86';
      end;
-     p:= Pos(DirectorySeparator+'jni', Project.ProjectInfoFile);
-     pathToProject:= Copy(Project.ProjectInfoFile, 1, p);
+     pathToProject := ExtractFilePath(Project.MainFile.Filename);
+     p:=Length(PathDelim+JNIPROJECT+PathDelim);
+     aux:=Copy(pathToProject,Length(pathToProject)-p+1,p);
+     if (CompareText(PathDelim+JNIPROJECT+PathDelim,aux)=0) then
+     begin
+       Delete(pathToProject,Length(pathToProject)-p+2,MaxInt);
+     end;
      pathToLib:= pathToProject+'libs'+ DirectorySeparator + libChip;
      pathToAndroidStudioJniLib:= pathToProject+'build'+DirectorySeparator+
                                  'intermediates'+DirectorySeparator+

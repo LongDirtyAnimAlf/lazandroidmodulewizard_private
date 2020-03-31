@@ -7,6 +7,9 @@ interface
 uses
   Classes, SysUtils, FileUtil, ProjectIntf, Forms, IniFiles;
 
+const
+  JNIPROJECT='jni';
+
 type
   TSupportLib = record
     MinAPI:integer;

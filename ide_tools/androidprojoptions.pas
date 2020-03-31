@@ -1205,17 +1205,25 @@ end;
 procedure TLamwProjectOptions.TryChangeChipset();
 var
   index: integer;
+  ProjectPath,tempStr: string;
 begin
   if cbChipset.Text <> '' then
   begin
     if cbChipset.Text <> FChipSetTarget then
     begin
+      ProjectPath := ExtractFilePath(LazarusIDE.ActiveProject.MainFile.Filename);
+      index:=Length(PathDelim+JNIPROJECT+PathDelim);
+      tempStr:=Copy(ProjectPath,Length(ProjectPath)-index+1,index);
+      if (CompareText(PathDelim+JNIPROJECT+PathDelim,tempStr)=0) then
+        ProjectPath:='..'
+      else
+        ProjectPath:='.';
        index:= cbChipset.ItemIndex;
        case index of
          0: begin  //ARMv6
            if FileExists(FProjectPath + 'jni' + PathDelim + 'build-modes' +PathDelim+ 'build_armV6.txt') then
            begin
-             LazarusIDE.ActiveProject.LazCompilerOptions.TargetFilename:=  '..'+PathDelim+'libs'+PathDelim+'armeabi'+PathDelim+'libcontrols';
+             LazarusIDE.ActiveProject.LazCompilerOptions.TargetFilename:= ProjectPath+PathDelim+'libs'+PathDelim+'armeabi'+PathDelim+'libcontrols';
              LazarusIDE.ActiveProject.LazCompilerOptions.CustomOptions:= GetBuildMode('build_armV6.txt', 2);
              LazarusIDE.ActiveProject.LazCompilerOptions.TargetCPU:= 'arm';
              LazarusIDE.ActiveProject.LazCompilerOptions.Libraries:= GetBuildMode('build_armV6.txt', 0);
@@ -1224,7 +1232,7 @@ begin
          1: begin  //ARMv7a+Soft
            if FileExists(FProjectPath + 'jni' + PathDelim + 'build-modes' +PathDelim+ 'build_armV7a.txt') then
            begin
-             LazarusIDE.ActiveProject.LazCompilerOptions.TargetFilename:=  '..'+PathDelim+'libs'+PathDelim+'armeabi-v7a'+PathDelim+'libcontrols';
+             LazarusIDE.ActiveProject.LazCompilerOptions.TargetFilename:= ProjectPath+PathDelim+'libs'+PathDelim+'armeabi-v7a'+PathDelim+'libcontrols';
              LazarusIDE.ActiveProject.LazCompilerOptions.CustomOptions:= GetBuildMode('build_armV7a.txt', 2);
              LazarusIDE.ActiveProject.LazCompilerOptions.TargetCPU:= 'arm';
              LazarusIDE.ActiveProject.LazCompilerOptions.Libraries:= GetBuildMode('build_armV7a.txt', 0);
@@ -1233,7 +1241,7 @@ begin
          2: begin //ARMv7a+VFPv3
            if FileExists(FProjectPath + 'jni' + PathDelim + 'build-modes' +PathDelim+ 'build_armV7a_VFPv3.txt') then
            begin
-             LazarusIDE.ActiveProject.LazCompilerOptions.TargetFilename:=  '..'+PathDelim+'libs'+PathDelim+'armeabi-v7a'+PathDelim+'libcontrols';
+             LazarusIDE.ActiveProject.LazCompilerOptions.TargetFilename:= ProjectPath+PathDelim+'libs'+PathDelim+'armeabi-v7a'+PathDelim+'libcontrols';
              LazarusIDE.ActiveProject.LazCompilerOptions.CustomOptions:= GetBuildMode('build_armV7a_VFPv3.txt', 2);
              LazarusIDE.ActiveProject.LazCompilerOptions.TargetCPU:= 'arm';
              LazarusIDE.ActiveProject.LazCompilerOptions.Libraries:= GetBuildMode('build_armV7a_VFPv3.txt', 0);
@@ -1242,7 +1250,7 @@ begin
          3: begin //x86
            if FileExists(FProjectPath + 'jni' + PathDelim + 'build-modes' +PathDelim+ 'build_x86.txt') then
            begin
-             LazarusIDE.ActiveProject.LazCompilerOptions.TargetFilename:=  '..'+PathDelim+'libs'+PathDelim+'x86'+PathDelim+'libcontrols';
+             LazarusIDE.ActiveProject.LazCompilerOptions.TargetFilename:= ProjectPath+PathDelim+'libs'+PathDelim+'x86'+PathDelim+'libcontrols';
              LazarusIDE.ActiveProject.LazCompilerOptions.CustomOptions:= GetBuildMode('build_x86.txt', 2);
              LazarusIDE.ActiveProject.LazCompilerOptions.TargetCPU:= 'i386';
              LazarusIDE.ActiveProject.LazCompilerOptions.Libraries:= GetBuildMode('build_x86.txt', 0);
@@ -1251,7 +1259,7 @@ begin
          4: begin //Mipsel
            if FileExists(FProjectPath + 'jni' + PathDelim + 'build-modes' +PathDelim+ 'build_mipsel.txt') then
            begin
-             LazarusIDE.ActiveProject.LazCompilerOptions.TargetFilename:=  '..'+PathDelim+'libs'+PathDelim+'mips'+PathDelim+'libcontrols';
+             LazarusIDE.ActiveProject.LazCompilerOptions.TargetFilename:= ProjectPath+PathDelim+'libs'+PathDelim+'mips'+PathDelim+'libcontrols';
              LazarusIDE.ActiveProject.LazCompilerOptions.CustomOptions:= GetBuildMode('build_mipsel.txt', 2);
              LazarusIDE.ActiveProject.LazCompilerOptions.TargetCPU:= 'mipsel';
              LazarusIDE.ActiveProject.LazCompilerOptions.Libraries:= GetBuildMode('build_mipsel.txt', 0);
@@ -1260,7 +1268,7 @@ begin
          5: begin //Aarch64    //build_arm64.txt
            if FileExists(FProjectPath + 'jni' + PathDelim + 'build-modes' +PathDelim+ 'build_arm64.txt') then
            begin
-             LazarusIDE.ActiveProject.LazCompilerOptions.TargetFilename:=  '..'+PathDelim+'libs'+PathDelim+'arm64-v8a'+PathDelim+'libcontrols';
+             LazarusIDE.ActiveProject.LazCompilerOptions.TargetFilename:= ProjectPath+PathDelim+'libs'+PathDelim+'arm64-v8a'+PathDelim+'libcontrols';
              LazarusIDE.ActiveProject.LazCompilerOptions.CustomOptions:= GetBuildMode('build_arm64.txt', 2);
              LazarusIDE.ActiveProject.LazCompilerOptions.TargetCPU:= 'aarch64';
              LazarusIDE.ActiveProject.LazCompilerOptions.Libraries:= GetBuildMode('build_arm64.txt', 0);
@@ -1269,7 +1277,7 @@ begin
          6: begin  //x86_64
            if FileExists(FProjectPath + 'jni' + PathDelim + 'build-modes' +PathDelim+ 'build_x86_64.txt') then
            begin
-             LazarusIDE.ActiveProject.LazCompilerOptions.TargetFilename:=  '..'+PathDelim+'libs'+PathDelim+'x86_64'+PathDelim+'libcontrols';
+             LazarusIDE.ActiveProject.LazCompilerOptions.TargetFilename:= ProjectPath+PathDelim+'libs'+PathDelim+'x86_64'+PathDelim+'libcontrols';
              LazarusIDE.ActiveProject.LazCompilerOptions.CustomOptions:= GetBuildMode('build_x86_64.txt', 2);
              LazarusIDE.ActiveProject.LazCompilerOptions.TargetCPU:= 'x86_64';
              LazarusIDE.ActiveProject.LazCompilerOptions.Libraries:= GetBuildMode('build_x86_64.txt', 0);
@@ -1669,8 +1677,16 @@ begin
   i := cbBuildSystem.Items.IndexOf(FBuildSystem);
   if i >= 0 then
     cbBuildSystem.ItemIndex := i;
-  fn := proj.MainFile.Filename;
-  fn := Copy(fn, 1, Pos(PathDelim + 'jni' + PathDelim, fn));
+
+  fn := ExtractFilePath(proj.MainFile.Filename);
+
+  i:=Length(PathDelim+JNIPROJECT+PathDelim);
+  s:=Copy(fn,Length(fn)-i+1,i);
+  if (CompareText(s,PathDelim+JNIPROJECT+PathDelim)=0) then
+  begin
+    Delete(fn,Length(fn)-i+2,MaxInt);
+  end;
+
   FProjectPath:= fn;
   fn := fn + 'AndroidManifest.xml';
   IsLamwProject := False;

@@ -825,9 +825,18 @@ begin
 end;
 
 constructor TApkBuilder.Create(AProj: TLazProject);
+var
+  tempStr: string;
+  p: integer;
 begin
   FProj := AProj;
-  FProjPath := ExtractFilePath(ChompPathDelim(ExtractFilePath(FProj.MainFile.Filename)));
+  FProjPath := ExtractFilePath(FProj.MainFile.Filename);
+  p:=Length(PathDelim+JNIPROJECT+PathDelim);
+  tempStr:=Copy(FProjPath,Length(FProjPath)-p+1,p);
+  if (CompareText(PathDelim+JNIPROJECT+PathDelim,tempStr)=0) then
+  begin
+    Delete(FProjPath,Length(FProjPath)-p+2,MaxInt);
+  end;
   LoadPaths;
   if TryFixPaths = mrAbort then
     Abort;

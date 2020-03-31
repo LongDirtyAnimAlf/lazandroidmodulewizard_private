@@ -1348,7 +1348,14 @@ begin
     end;
 
     FPathToAndroidProject := ExtractFilePath(AProject.MainFile.Filename);
-    FPathToAndroidProject := Copy(FPathToAndroidProject, 1, RPosEX(PathDelim, FPathToAndroidProject, Length(FPathToAndroidProject) - 1));
+
+    queryValue:=PathDelim+JNIPROJECT+PathDelim;
+    p:=Length(queryValue);
+    tempStr:=Copy(FPathToAndroidProject,Length(FPathToAndroidProject)-p+1,p);
+    if (CompareText(queryValue,tempStr)=0) then
+    begin
+      Delete(FPathToAndroidProject,Length(FPathToAndroidProject)-p+2,MaxInt);
+    end;
 
     tempStr:= Copy(FPathToAndroidProject, 1, Length(FPathToAndroidProject)-1);
     p:= LastDelimiter(PathDelim, tempStr) + 1;
@@ -1357,6 +1364,7 @@ begin
     if FPackageName = '' then
     begin
       FPackageName := GetPackageNameFromAndroidManifest(FPathToAndroidProject);
+      if FPackageName = '' then FPackageName:=FSmallProjName;
       AProject.CustomData['Package'] := FPackageName;
     end;
     FPathToJavaSource:= FPathToAndroidProject + 'src' + PathDelim + AppendPathDelim(ReplaceChar(FPackageName, '.', PathDelim));
@@ -1883,11 +1891,11 @@ begin
               (*
               //need by compiler
               CopyFile(PathToJavaTemplates+'lamwdesigner'+PathDelim+'libs'+PathDelim+'ftsrc'+PathDelim+'freetype.pp',
-                       FPathToAndroidProject+'jni'+PathDelim+ 'freetype.pp');
+                       FPathToAndroidProject+JNIPROJECT+PathDelim+ 'freetype.pp');
               CopyFile(PathToJavaTemplates+'lamwdesigner'+PathDelim+'libs'+PathDelim+'ftsrc'+PathDelim+'freetypeh.pp',
-                      FPathToAndroidProject+'jni'+PathDelim+ 'freetypeh.pp');
+                      FPathToAndroidProject+JNIPROJECT+PathDelim+ 'freetypeh.pp');
               CopyFile(PathToJavaTemplates+'lamwdesigner'+PathDelim+'libs'+PathDelim+'ftsrc'+PathDelim+'ftfont.pp',
-                       FPathToAndroidProject+'jni'+PathDelim+ 'ftfont.pp');
+                       FPathToAndroidProject+JNIPROJECT+PathDelim+ 'ftfont.pp');
               *)
 
             end
@@ -2599,8 +2607,8 @@ begin
       CopyFile(FPathToJavaSource+'App.java',
                FPathToJavaSource+'bak'+DirectorySeparator+'App.java.bak.OLD');
 
-      CopyFile(FPathToAndroidProject+'jni'+DirectorySeparator+'controls.lpr',
-               FPathToAndroidProject+'jni'+DirectorySeparator+'controls.lpr.bak.OLD');
+      CopyFile(FPathToAndroidProject+JNIPROJECT+DirectorySeparator+'controls.lpr',
+               FPathToAndroidProject+JNIPROJECT+DirectorySeparator+'controls.lpr.bak.OLD');
     end;
     ForceDirectory(FPathToAndroidProject+'lamwdesigner');
     // old [fat] *.lpr will be cleanup on project saving
@@ -3189,49 +3197,52 @@ begin
      {$endif}
    end;
 
+   ForceDirectories(FPathToAndroidProject+JNIPROJECT);
+   ForceDirectories(FPathToAndroidProject+JNIPROJECT+PathDelim+'build-modes');
+
    listBuildMode:= TStringList.Create;
 
    listBuildMode.Clear;
    listBuildMode.Add('<Libraries Value="'+FPathToAndroidNDK+'platforms'+PathDelim+'android-'+ndkApi+PathDelim+'arch-arm64'+PathDelim+'usr'+PathDelim+'lib;'+FPathToAndroidNDK+'toolchains'+PathDelim+'aarch64-linux-android-4.9'+PathDelim+'prebuilt'+PathDelim+FPrebuildOSYS+PathDelim+'lib'+PathDelim+'gcc'+PathDelim+'aarch64-linux-android'+PathDelim+'4.9'+x+'"/>');
    listBuildMode.Add('<TargetCPU Value="aarch64"/>');
    listBuildMode.Add('<CustomOptions Value="-Xd -XPaarch64-linux-android- -FD'+FPathToAndroidNDK+'toolchains'+PathDelim+'aarch64-linux-android-4.9'+PathDelim+'prebuilt'+PathDelim+FPrebuildOSYS+PathDelim+'bin"/>');
-   listBuildMode.SavetoFile(FPathToAndroidProject+'jni'+PathDelim+'build-modes'+PathDelim+'build_arm64.txt');
+   listBuildMode.SavetoFile(FPathToAndroidProject+JNIPROJECT+PathDelim+'build-modes'+PathDelim+'build_arm64.txt');
 
    listBuildMode.Clear;
    listBuildMode.Add('<Libraries Value="'+FPathToAndroidNDK+'platforms'+PathDelim+'android-'+ndkApi+PathDelim+'arch-arm'+PathDelim+'usr'+PathDelim+'lib;'+FPathToAndroidNDK+'toolchains'+PathDelim+'arm-linux-androideabi-4.9'+PathDelim+'prebuilt'+PathDelim+FPrebuildOSYS+PathDelim+'lib'+PathDelim+'gcc'+PathDelim+'arm-linux-androideabi'+PathDelim+'4.9'+x+'"/>');
    listBuildMode.Add('<TargetCPU Value="arm"/>');
    listBuildMode.Add('<CustomOptions Value="-Xd -CfSoft -CpARMV6 -XParm-linux-androideabi- -FD'+FPathToAndroidNDK+'toolchains'+PathDelim+'arm-linux-androideabi-4.9'+PathDelim+'prebuilt'+PathDelim+FPrebuildOSYS+PathDelim+'bin"/>');
-   listBuildMode.SavetoFile(FPathToAndroidProject+'jni'+PathDelim+'build-modes'+PathDelim+'build_armV6.txt');
+   listBuildMode.SavetoFile(FPathToAndroidProject+JNIPROJECT+PathDelim+'build-modes'+PathDelim+'build_armV6.txt');
 
    listBuildMode.Clear;
    listBuildMode.Add('<Libraries Value="'+FPathToAndroidNDK+'platforms'+PathDelim+'android-'+ndkApi+PathDelim+'arch-arm'+PathDelim+'usr'+PathDelim+'lib;'+FPathToAndroidNDK+'toolchains'+PathDelim+'arm-linux-androideabi-4.9'+PathDelim+'prebuilt'+PathDelim+FPrebuildOSYS+PathDelim+'lib'+PathDelim+'gcc'+PathDelim+'arm-linux-androideabi'+PathDelim+'4.9'+x+'"/>');
    listBuildMode.Add('<TargetCPU Value="arm"/>');
    listBuildMode.Add('<CustomOptions Value="-Xd -CfSoft -CpARMV7A -XParm-linux-androideabi- -FD'+FPathToAndroidNDK+'toolchains'+PathDelim+'arm-linux-androideabi-4.9'+PathDelim+'prebuilt'+PathDelim+FPrebuildOSYS+PathDelim+'bin"/>');
-   listBuildMode.SavetoFile(FPathToAndroidProject+'jni'+PathDelim+'build-modes'+PathDelim+'build_armV7a.txt');
+   listBuildMode.SavetoFile(FPathToAndroidProject+JNIPROJECT+PathDelim+'build-modes'+PathDelim+'build_armV7a.txt');
 
    listBuildMode.Clear;
    listBuildMode.Add('<Libraries Value="'+FPathToAndroidNDK+'platforms'+PathDelim+'android-'+ndkApi+PathDelim+'arch-arm'+PathDelim+'usr'+PathDelim+'lib;'+FPathToAndroidNDK+'toolchains'+PathDelim+'arm-linux-androideabi-4.9'+PathDelim+'prebuilt'+PathDelim+FPrebuildOSYS+PathDelim+'lib'+PathDelim+'gcc'+PathDelim+'arm-linux-androideabi'+PathDelim+'4.9'+x+'"/>');
    listBuildMode.Add('<TargetCPU Value="arm"/>');
    listBuildMode.Add('<CustomOptions Value="-Xd -CfVFPv3 -CpARMV7A -XParm-linux-androideabi- -FD'+FPathToAndroidNDK+'toolchains'+PathDelim+'arm-linux-androideabi-4.9'+PathDelim+'prebuilt'+PathDelim+FPrebuildOSYS+PathDelim+'bin"/>');
-   listBuildMode.SavetoFile(FPathToAndroidProject+'jni'+PathDelim+'build-modes'+PathDelim+'build_armV7a_VFPv3.txt');
+   listBuildMode.SavetoFile(FPathToAndroidProject+JNIPROJECT+PathDelim+'build-modes'+PathDelim+'build_armV7a_VFPv3.txt');
 
    listBuildMode.Clear;
    listBuildMode.Add('<Libraries Value="'+FPathToAndroidNDK+'platforms'+PathDelim+'android-'+ndkApi+PathDelim+'arch-x86'+PathDelim+'usr'+PathDelim+'lib;'+FPathToAndroidNDK+'toolchains'+PathDelim+'x86-4.9'+PathDelim+'prebuilt'+PathDelim+FPrebuildOSYS+PathDelim+'lib'+PathDelim+'gcc'+PathDelim+'x86-linux-android'+PathDelim+'4.9'+x+'"/>');
    listBuildMode.Add('<TargetCPU Value="i386"/>');
    listBuildMode.Add('<CustomOptions Value="-Xd -XPi686-linux-android- -FD'+FPathToAndroidNDK+'toolchains'+PathDelim+'x86-4.9'+PathDelim+'prebuilt'+PathDelim+FPrebuildOSYS+PathDelim+'bin"/>');
-   listBuildMode.SavetoFile(FPathToAndroidProject+'jni'+PathDelim+'build-modes'+PathDelim+'build_x86.txt');
+   listBuildMode.SavetoFile(FPathToAndroidProject+JNIPROJECT+PathDelim+'build-modes'+PathDelim+'build_x86.txt');
 
    listBuildMode.Clear;
    listBuildMode.Add('<Libraries Value="'+FPathToAndroidNDK+'platforms'+PathDelim+'android-'+ndkApi+PathDelim+'arch-x86_64'+PathDelim+'usr'+PathDelim+'lib;'+FPathToAndroidNDK+'toolchains'+PathDelim+'x86_64-4.9'+PathDelim+'prebuilt'+PathDelim+FPrebuildOSYS+PathDelim+'lib'+PathDelim+'gcc'+PathDelim+'x86_64-linux-android'+PathDelim+'4.9'+x+'"/>');
    listBuildMode.Add('<TargetCPU Value="x86_64"/>');
    listBuildMode.Add('<CustomOptions Value="-Xd -XPx86_64-linux-android- -FD'+FPathToAndroidNDK+'toolchains'+PathDelim+'x86_64-4.9'+PathDelim+'prebuilt'+PathDelim+FPrebuildOSYS+PathDelim+'bin"/>');
-   listBuildMode.SavetoFile(FPathToAndroidProject+'jni'+PathDelim+'build-modes'+PathDelim+'build_x86_64.txt');
+   listBuildMode.SavetoFile(FPathToAndroidProject+JNIPROJECT+PathDelim+'build-modes'+PathDelim+'build_x86_64.txt');
 
    listBuildMode.Clear;
    listBuildMode.Add('<Libraries Value="'+FPathToAndroidNDK+'platforms'+PathDelim+'android-'+ndkApi+PathDelim+'arch-mips'+PathDelim+'usr'+PathDelim+'lib;'+FPathToAndroidNDK+'toolchains'+PathDelim+'mipsel-linux-android-4.9'+PathDelim+'prebuilt'+PathDelim+FPrebuildOSYS+PathDelim+'lib'+PathDelim+'gcc'+PathDelim+'mipsel-linux-android'+PathDelim+'4.9'+x+'"/>');
    listBuildMode.Add('<TargetCPU Value="mipsel"/>');
    listBuildMode.Add('<CustomOptions Value="-Xd -XPmipsel-linux-android- -FD'+FPathToAndroidNDK+'toolchains'+PathDelim+'mipsel-linux-android-4.9'+PathDelim+'prebuilt'+PathDelim+FPrebuildOSYS+PathDelim+'bin"/>');
-   listBuildMode.SavetoFile(FPathToAndroidProject+'jni'+PathDelim+'build-modes'+PathDelim+'build_mipsel.txt');
+   listBuildMode.SavetoFile(FPathToAndroidProject+JNIPROJECT+PathDelim+'build-modes'+PathDelim+'build_mipsel.txt');
 
    listBuildMode.Clear;
    listBuildMode.Add('How to get more ".so" chipset builds:');
@@ -3251,7 +3262,7 @@ begin
    listBuildMode.Add(' ');
    listBuildMode.Add('   > [LAMW] Build Android Apk and Run');
    listBuildMode.Add(' ');
-   listBuildMode.SavetoFile(FPathToAndroidProject+'jni'+PathDelim+'build-modes'+PathDelim+'readme.txt');
+   listBuildMode.SavetoFile(FPathToAndroidProject+JNIPROJECT+PathDelim+'build-modes'+PathDelim+'readme.txt');
 
    listBuildMode.Free;
 
